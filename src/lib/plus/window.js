@@ -3,7 +3,7 @@
  * @module window
  */
 
-import { os } from "./os.js"
+import {os} from "./os.js"
 import * as utils from "../common/utils"
 import * as ui from "./nativeUI.js"
 import qs from "qs"
@@ -29,6 +29,7 @@ function getId(url, ext) {
   }
   return tmp[0] + _qs
 }
+
 /*
  * 组装 window url
  * @param {String} url url
@@ -46,12 +47,12 @@ function getUrl(url, ext, id) {
   if (!id) {
     id = getId(url, ext)
   }
-  opt = utils.mix(true, opt, { id: id })
+  opt = utils.mix(true, opt, {id: id})
   let _qs = qs.stringify(opt)
   if (_qs) {
     _qs = "?" + _qs
   }
-  return { url: tmp[0] + _qs, id: id }
+  return {url: tmp[0] + _qs, id: id}
 }
 
 // #endregion
@@ -89,7 +90,7 @@ const defaultHide = {
 export function errorPage(url) {
   defaultWin.errorPage = url
   if (window.plus) {
-    getWin().setStyle({ errorPage: url })
+    getWin().setStyle({errorPage: url})
   }
 }
 
@@ -104,13 +105,13 @@ export function errorPage(url) {
  * @example
  * this.plus.create('login.html')
  */
-export function create(url = "", id = "", opts = { ext: {}, style: {} }) {
+export function create(url = "", id = "", opts = {ext: {}, style: {}}) {
   let webview = null
   if (!url) {
     return webview
   }
   if (!opts) {
-    opts = { ext: {}, style: {} }
+    opts = {ext: {}, style: {}}
   }
   if (!opts.ext) {
     opts.ext = {}
@@ -122,8 +123,13 @@ export function create(url = "", id = "", opts = { ext: {}, style: {} }) {
     if (!id) {
       id = getId(url, opts.ext)
     }
+
     webview = plus.webview.getWebviewById(id)
     if (!webview) {
+      ui.showWaiting()
+      setTimeout(()=>{
+        ui.closeWaiting()
+      },5000)
       // 不存在
       webview = plus.webview.create(
         url,
@@ -150,7 +156,7 @@ export function create(url = "", id = "", opts = { ext: {}, style: {} }) {
  * // 根据id显示
  * this.plus.show('login')
  */
-export function show(w, opts = { loading: true, ani: {} }) {
+export function show(w, opts = {loading: true, ani: {}}) {
   // export function show(w, opts = {}, showedCB = function () { }) {
   w = getWin(w)
   if (!w) {
@@ -158,7 +164,7 @@ export function show(w, opts = { loading: true, ani: {} }) {
     return
   }
   if (!opts) {
-    opts = { loading: true, ani: {} }
+    opts = {loading: true, ani: {}}
   }
   if (!opts.ani) {
     opts.ani = {}
@@ -179,21 +185,32 @@ export function show(w, opts = { loading: true, ani: {} }) {
       // 窗口不可见（从没调用过show或hide了）
 
       if (opts.loading) {
-        ui.showWaiting()
         setTimeout(() => {
           // 设置系统状态栏背景颜色
-          w.show(_Opt.aniShow, _Opt.duration, function() {
+          let bitmap = new plus.nativeObj.Bitmap(w.id)
+          w.draw(bitmap, function () {
+          })
+          w.show(_Opt.aniShow, _Opt.duration, function () {
             // showedCB()
             ui.closeWaiting()
+          }, {
+            acceleration: 'capture',
+            capture: bitmap
           })
-        }, defaultShow.duration)
+        }, 0)
       } else {
         setTimeout(() => {
           // 设置系统状态栏背景颜色
-          w.show(_Opt.aniShow, _Opt.duration, function() {
-            // showedCB()
+          let bitmap = new plus.nativeObj.Bitmap(w.id)
+          w.draw(bitmap, function () {
           })
-        }, defaultShow.duration)
+          w.show(_Opt.aniShow, _Opt.duration, function () {
+            // showedCB()
+          }, {
+            acceleration: 'capture',
+            capture: bitmap
+          })
+        }, 0)
       }
     } else {
       // 窗口可见（调用过show方法，即使被其它窗口挡住了也认为已显示）
@@ -212,18 +229,30 @@ export function show(w, opts = { loading: true, ani: {} }) {
             ui.showWaiting()
             setTimeout(() => {
               // 设置系统状态栏背景颜色
-              w.show(_Opt.aniShow, _Opt.duration, function() {
+              let bitmap = new plus.nativeObj.Bitmap(w.id)
+              w.draw(bitmap, function () {
+              })
+              w.show(_Opt.aniShow, _Opt.duration, function () {
                 // showedCB()
                 ui.closeWaiting()
+              },{
+                acceleration: 'capture',
+                capture: bitmap
               })
-            }, defaultHide.duration)
+            }, 0)
           } else {
             setTimeout(() => {
               // 设置系统状态栏背景颜色
-              w.show(_Opt.aniShow, _Opt.duration, function() {
-                // showedCB()
+              let bitmap = new plus.nativeObj.Bitmap(w.id)
+              w.draw(bitmap, function () {
               })
-            }, defaultHide.duration)
+              w.show(_Opt.aniShow, _Opt.duration, function () {
+                // showedCB()
+              },{
+                acceleration: 'capture',
+                  capture: bitmap
+              })
+            }, 0)
           }
         } else {
           // 最顶层的不是home页并且w也不是是home页面
@@ -241,6 +270,8 @@ export function show(w, opts = { loading: true, ani: {} }) {
           }
           hide(topView)
         }
+      }else{
+        ui.closeWaiting()
       }
     }
   } else {
@@ -270,7 +301,7 @@ export function hide(w, hideOpts = {}) {
     if (isHome(w)) {
       return
     }
-    let _Opt = { duration: defaultHide.duration }
+    let _Opt = {duration: defaultHide.duration}
     if (hideOpts.duration || hideOpts.aniHide) {
       _Opt = utils.mix({}, defaultHide, hideOpts)
     }
@@ -310,7 +341,7 @@ export function close(w, closeOpts = {}) {
         }
       }
     w.addEventListener("onclose", fn)
-    let _Opt = { duration: defaultHide.duration }
+    let _Opt = {duration: defaultHide.duration}
     if (closeOpts.duration || closeOpts.aniHide) {
       _Opt = utils.mix({}, defaultHide, closeOpts)
     }
@@ -322,7 +353,7 @@ export function close(w, closeOpts = {}) {
       w.close(_Opt.aniHide || "auto", _Opt.duration)
     }
   } else {
-    w.close()
+    window.history.back()
   }
 }
 
@@ -345,11 +376,9 @@ export function close(w, closeOpts = {}) {
  *   }
  * });
  */
-export function open(
-  url = "",
-  id = "",
-  opts = { loading: true, ext: {}, ani: {}, style: {} }
-) {
+export function open(url = "",
+                     id = "",
+                     opts = {autoShow: false, loading: true, ext: {}, ani: {}, style: {}}) {
   if (!url) {
     return null
   }
@@ -360,11 +389,12 @@ export function open(
     let view = plus.webview.getWebviewById(id)
     if (!view) {
       // 不存在
-      view = create(url, id, { ext: opts.ext, style: opts.style })
+      view = create(url, id, {ext: opts.ext, style: opts.style})
     } else {
       view.setStyle(opts.style)
+      show(view)
     }
-    show(view, { loading: opts.loading, ani: opts.ani })
+    if(opts.autoShow) show(view, {loading: opts.loading, ani: opts.ani})
     return view
   } else if (!os.plus) {
     // web，非web
@@ -372,7 +402,7 @@ export function open(
     url = _opt.url
     id = _opt.id
     let views = [...mainWin.__all_wins]
-    let view = views.find(function(item, index, arr) {
+    let view = views.find(function (item, index, arr) {
       return item.id === id
     })
     if (!view) {
@@ -422,7 +452,7 @@ export function getWin(w) {
   } else {
     if (utils.isString(w)) {
       let views = [...mainWin.__all_wins]
-      win = views.find(function(item, index, arr) {
+      win = views.find(function (item, index, arr) {
         return item.id === w
       })
     } else if (utils.isWindow(w)) {
@@ -540,30 +570,28 @@ export function isTop(w) {
  *   }
  * });
  */
-export function menu(
-  url = "",
-  id = "",
-  opts = { loading: true, ext: {}, ani: {}, style: {} }
-) {
+export function menu(url = "",
+                     id = "",
+                     opts = {loading: true, ext: {}, ani: {}, style: {}}) {
   if (window.plus) {
     let w = getWin()
     let side = open(url, id, opts)
     side.addEventListener(
       "close",
-      function() {
-        w.setStyle({ mask: "none" })
+      function () {
+        w.setStyle({mask: "none"})
         side = null
       },
       false
     )
     side.addEventListener(
       "hide",
-      function() {
-        w.setStyle({ mask: "none" })
+      function () {
+        w.setStyle({mask: "none"})
       },
       false
     )
-    w.setStyle({ mask: "rgba(0,0,0,0.5)" })
+    w.setStyle({mask: "rgba(0,0,0,0.5)"})
     return side
   } else {
     return null
@@ -613,11 +641,12 @@ export function menu(
  * this.plus.pullRefresh({ support: false });
  * this.plus.pullRefresh();
  */
-export function pullRefresh(style = {}, callback = () => {}) {
+export function pullRefresh(style = {}, callback = () => {
+}) {
   let win = getWin()
   if (window.plus) {
     if (style && !!style.support && utils.isFunction(callback)) {
-      win.setPullToRefresh(style, function() {
+      win.setPullToRefresh(style, function () {
         let end = () => {
           win.endPullToRefresh()
         }
@@ -628,6 +657,7 @@ export function pullRefresh(style = {}, callback = () => {}) {
     }
   }
 }
+
 /**
  * 当前Webview窗口的手动触发下拉刷新效果
  * 前提是设置了下拉刷新效果
@@ -640,4 +670,5 @@ export function beginPullRefresh() {
     win.beginPullToRefresh()
   }
 }
+
 // #endregion

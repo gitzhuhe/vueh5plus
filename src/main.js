@@ -6,9 +6,9 @@ import plus from './lib'
 Vue.use(plus, {
   errorPage: '/error.html',
   // 重写库中的toast方法
-  toast(msg) {
-    alert(msg)
-  },
+  // toast(msg) {
+  //   alert(msg)
+  // },
   // 扩展方法
   log(info) {
     console.log(info)

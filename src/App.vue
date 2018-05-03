@@ -67,6 +67,7 @@ export default {
       );
     },
     plus() {
+      this.plus.show()
       let self = this;
       console.log("APP主页 设备加载完成");
       this.ishome = this.plus.isHome();
@@ -91,7 +92,7 @@ export default {
         let handle2 = {
           act() {
             console.log(self.$options.name + " back  handle2");
-            return false;
+            //return false;
           }
         };
         self.plus.addBack(handle1);
@@ -100,7 +101,7 @@ export default {
           index: 9,
           act() {
             console.log(self.$options.name + " back  handle3");
-            return false;
+            //return false;
           }
         });
         // self.plus.removeBack(handle3);
@@ -127,6 +128,7 @@ export default {
   },
   mounted: function() {
     console.log("APP主页  mounted");
+
   },
   methods: {
     //visibilitychange
@@ -150,11 +152,12 @@ export default {
     },
     openAbc: function() {
       let self = this;
-      let v = this.plus.open("http://192.168.2.124:8081/l", "abc", {
+      let v = this.plus.create("http://10.255.255.1:8081/l", "abc", {
         ext: {
           abc: 121
         }
       });
+      //this.plus.show(v)
       v.addEventListener("close", function(e) {
         self.statusBar(plus.webview.getTopWebview().bgcolor);
       });
@@ -168,7 +171,7 @@ export default {
     openRandom: function() {
       let self = this;
       let v = this.plus.open(
-        "http://192.168.2.124:8081/",
+        "http://10.255.255.1:8081/",
         new Date().valueOf(),
         {
           ext: {
@@ -251,7 +254,7 @@ export default {
     // #endregion
     // #region 侧滑菜单
     menuLeft: function() {
-      this.plus.menu("http://192.168.2.124:8081/", "menuLeft", {
+      this.plus.menu("http://10.255.255.1:8081/", "menuLeft", {
         ani: { aniShow: "slide-in-left" },
         style: {
           right: "30%",
@@ -261,7 +264,7 @@ export default {
       });
     },
     menuRight: function() {
-      this.plus.menu("http://192.168.2.124:8081/", "menuRight", {
+      this.plus.menu("http://10.255.255.1:8081/", "menuRight", {
         ani: { aniShow: "slide-in-right" },
         style: {
           left: "30%",
@@ -271,7 +274,7 @@ export default {
       });
     },
     menuBottom: function() {
-      this.plus.menu("http://192.168.2.124:8081/", "menuBottom", {
+      this.plus.menu("http://10.255.255.1:8081/", "menuBottom", {
         ani: { aniShow: "slide-in-bottom" },
         style: {
           top: "70%",
@@ -281,7 +284,7 @@ export default {
       });
     },
     menuTop: function() {
-      this.plus.menu("http://192.168.2.124:8081/", "menuTop", {
+      this.plus.menu("http://10.255.255.1:8081/", "menuTop", {
         ani: { aniShow: "slide-in-top" },
         style: {
           bottom: "70%",
