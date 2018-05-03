@@ -1,6 +1,6 @@
 ## 安装
 ``` bash
-npm install H5+PLUS
+npm install h5plus
 ```
 
 
